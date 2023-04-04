@@ -1,0 +1,30 @@
+#my-table{
+    border-сollapse: collapse;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+td{
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    border: 1px solid black;
+}
+
+.maze {
+    background-color: white;
+}
+.wall {
+    background-color: black;
+}
+.startEndPoint {
+    background-color: green;
+}
+
+#buttons{
+    position: absolute;
+    top: 90%;
+    left: 40%;
+}
