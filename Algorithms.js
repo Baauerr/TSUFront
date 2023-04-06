@@ -1,34 +1,29 @@
-class Node {
-    constructor(xIndex, yIndex, nodeSize) {
-        this.xIndex = xIndex; //X-Index in grid[]
-        this.yIndex = yIndex; //Y-Index in grid[]
-        this.x = xIndex * nodeSize; //X-Index in grid[] multiplied by nodeSize (e.g. 2 x 50) forms the grid
-        this.y = yIndex * nodeSize; //Y-Index in grid[] multiplied by nodeSize (e.g. 2 x 50) forms the grid
-        this.nodeSize = nodeSize; //Size of the Node in Pixels
-        this.parent = null; //Node's Parent Node
-        this.neighbors = []; //The Node's Neighbors
-        this.g = 0; //Cost from Start-Node
-        this.h = 0; //Heuristic cost to End-Node
-        this.f = 0; //F-Cost = Sum of G-Cost + H-Cost
-    }
-}
-
-
 const table = document.getElementById('my-table');
 table.style.borderCollapse = 'collapse';
 document.body.appendChild(table);
 
-let sizeOfMaze = 41
-const maze = new Array(sizeOfMaze);
+// let myInput = document.getElementById('myInput');
+// let sizeOfMaze = parseInt(myInput.value)
+let sizeOfMaze = 47
+const maze = [];
 let createWallOrPointMode = null;
 
 for (let i = 0; i < sizeOfMaze; i++) {
-    maze[i] = new Array(sizeOfMaze);
+    maze[i] = [];
 }
 
 for (let i = 0; i < sizeOfMaze; i++) {
     for (let j = 0; j < sizeOfMaze; j++) {
-        maze[i][j] = new Node(i, j, sizeOfMaze);
+        maze[i][j] = {
+            value: 1,
+            y: i,
+            x: j,
+            h: 0,
+            d: 0,
+            w: 0,
+            neighbors: [],
+            parent: null,
+        };
     }
 }
 
@@ -37,45 +32,44 @@ function createTable() {
         const row = document.createElement('tr');
         table.appendChild(row);
         for (let x = 0; x < maze[y].length; x++) {
-            maze[y][x] = 1
+            maze[y][x].value = 1
             const cell = document.createElement('td');
             cell.classList.add('cell');
             row.appendChild(cell);
             cell.addEventListener('click', () => {
                 if (createWallOrPointMode === 1) {
-                    switch (maze[y][x]){
+                    switch (maze[y][x].value) {
                         case 2:
-                            maze[y][x] = 1;
-                            cell.classList.remove('startEndPoint');
+                            maze[y][x].value = 1;
+                            cell.className = '';
                             cell.classList.add('wall');
                             break;
                         case 1:
-                            maze[y][x] = 0;
-                            cell.classList.remove('wall');
+                            maze[y][x].value = 0;
+                            cell.className = '';
                             cell.classList.add('maze');
                             break
                         case 0:
-                            maze[y][x] = 1;
-                            cell.classList.remove('maze');
+                            maze[y][x].value = 1;
+                            cell.className = '';
                             cell.classList.add('wall');
                             break;
                     }
-                }
-                else if (createWallOrPointMode === 0) {
-                    switch(maze[x][y]){
+                } else if (createWallOrPointMode === 0) {
+                    switch (maze[x][y].value) {
                         case 2:
-                            maze[y][x] = 0;
-                            cell.classList.remove('startEndPoint');
+                            maze[y][x].value = 0;
+                            cell.className = '';
                             cell.classList.add('maze');
                             break;
                         case 1:
-                            maze[y][x] = 2;
-                            cell.classList.remove('wall');
+                            maze[y][x].value = 2;
+                            cell.className = '';
                             cell.classList.add('startEndPoint');
                             break;
                         case 0:
-                            maze[y][x] = 2;
-                            cell.classList.remove('maze');
+                            maze[y][x].value = 2;
+                            cell.className = '';
                             cell.classList.add('startEndPoint');
                             break;
                     }
@@ -85,140 +79,128 @@ function createTable() {
         }
     }
 }
-
 createTable();
 function createMaze(maze, sizeOfMaze, table) {
-    for (let y = 0; y < sizeOfMaze; y++){
-        for (let x = 0; x < sizeOfMaze; x++){
-            switch (maze[y][x]){
-                case 0:
-                    table.rows[y].cells[x].classList.replace('maze','wall')
-                    break
-                case 2:
-                    table.rows[y].cells[x].classList.replace('startEndPoint','wall')
-                    break
-            }
-            maze[y][x] = 1
+    for (let y = 0; y < sizeOfMaze; y++) {
+        for (let x = 0; x < sizeOfMaze; x++) {
+            table.rows[y].cells[x].className = '';
+            table.rows[y].cells[x].classList.add('wall');
+            maze[y][x].value = 1
         }
     }
-
     let neighboursList = []
-    function getNeighbours(y,x,addBlockWalls, maze, table) {
-        maze[y][x] = 0;
+
+    function getNeighbours(y, x, addBlockWalls, maze, table) {
+        maze[y][x].value = 0;
         table.rows[y].cells[x].classList.remove('wall');
         table.rows[y].cells[x].classList.add('maze');
-        if (addBlockWalls && valid(y+1,x) &&  (maze[y+1][x] === 1))
-            neighboursList.push([y+1,  x , [y,x]]);
-        if (addBlockWalls && valid(y-1,x) && (maze[y-1][x] === 1))
-            neighboursList.push([y-1,  x , [y,x]]);
-        if (addBlockWalls && valid(y,x+1) && (maze[y][x+1] === 1))
-            neighboursList.push([y , x+1, [y,x]]);
-        if (addBlockWalls && valid(y,x-1) && (maze[y][x-1] === 1))
-            neighboursList.push([y , x-1, [y,x]]);
+        if (addBlockWalls && valid(y + 1, x) && (maze[y + 1][x].value === 1))
+            neighboursList.push([y + 1, x, [y, x]]);
+        if (addBlockWalls && valid(y - 1, x) && (maze[y - 1][x].value === 1))
+            neighboursList.push([y - 1, x, [y, x]]);
+        if (addBlockWalls && valid(y, x + 1) && (maze[y][x + 1].value === 1))
+            neighboursList.push([y, x + 1, [y, x]]);
+        if (addBlockWalls && valid(y, x - 1) && (maze[y][x - 1].value === 1))
+            neighboursList.push([y, x - 1, [y, x]]);
     }
-    function valid(a,b) {
+
+    function valid(a, b) {
         return (a < sizeOfMaze && a >= 0 && b < sizeOfMaze && b >= 0);
     }
+
     getNeighbours(2, 2, true, maze, table)
     while (neighboursList.length !== 0) {
-            let randomWall = neighboursList[Math.floor(Math.random() * neighboursList.length)]
-            let host = randomWall[2]
-            let opposite = [(host[0] + (randomWall[0] - host[0]) * 2), (host[1] + (randomWall[1] - host[1]) * 2)]
-            if (valid(opposite[0], opposite[1])) {
-                if (maze[opposite[0]][opposite[1]] === 0)
-                    neighboursList.splice(neighboursList.indexOf(randomWall), 1);
-                else
-                    getNeighbours(randomWall[0], randomWall[1], false, maze, table),
-                        getNeighbours(opposite[0], opposite[1], true, maze, table);
-
-            } else
+         let randomWall = neighboursList[Math.floor(Math.random() * neighboursList.length)]
+        let host = randomWall[2]
+        let opposite = [(host[0] + (randomWall[0] - host[0]) * 2), (host[1] + (randomWall[1] - host[1]) * 2)]
+        if (valid(opposite[0], opposite[1])) {
+            if (maze[opposite[0]][opposite[1]].value === 0)
                 neighboursList.splice(neighboursList.indexOf(randomWall), 1);
+            else
+                getNeighbours(randomWall[0], randomWall[1], false, maze, table),
+                    getNeighbours(opposite[0], opposite[1], true, maze, table);
+
+        } else
+            neighboursList.splice(neighboursList.indexOf(randomWall), 1);
     }
 }
-console.log(maze);
 
-function aStar(startNode, endNode, maze) {
-    function manhattanHeuristic(startX, startY, endX, endY) {
-        return Math.abs(startX - endX) + Math.abs(startY - endY);
+function findPath(start, end, maze, table) {
+    function manhattanHeuristic(start, end) {
+        return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     }
 
-        function findNeighbors(maze) {
-            for (let i = 0; i < maze.length; i++) {
-                for (let j = 0; j < maze[i].length; j++) {
-                    //Left Neighbor
-                    if (i > 0)
-                        maze[i][j].neighbors.push(maze[i - 1][j]);
-                    //Right Neighbor
-                    if (i < maze[i].length - 1)
-                        maze[i][j].neighbors.push(maze[i + 1][j]);
-                    //Upper Neighbor
-                    if (j > 0)
-                        maze[i][j].neighbors.push(maze[i][j - 1]);
-                    //Lower Neighbor
-                    if (j < maze[i].length - 1)
-                        maze[i][j].neighbors.push(maze[i][j + 1]);
-                }
-            }
+    function getNeighbours(y, x, maze, table, end, openList, closedList) {
+        if (valid(y + 1, x) && (maze[y + 1][x].value === 0) && !closedList.includes(maze[y + 1][x])) {
+            maze[y + 1][x].h = manhattanHeuristic(maze[y + 1][x], end) * 10
+            maze[y + 1][x].d = maze[x][y].d + 10
+            maze[y + 1][x].w = maze[y + 1][x].h + maze[y + 1][x].d
+            maze[y + 1][x].parent = maze[y][x]
+            openList.add(maze[y + 1][x]);
         }
-
-        findNeighbors(maze);
-
-        let openList = []; //Search-Queue
-        let closedList = []; //Finished Queue
-        let currentNode;
-
-        //As long as there are items in the openList[], the Search isn't done
-        if (!!openList.length) {
-
-            //Find the index of openList with the lowest F-Value
-            let lowestFIndex = 0;
-            for (let i = 0; i < openList.length - 1; i++) {
-                if (openList[i].f < openList[lowestFIndex].f) {
-                    lowestFIndex = i;
-                }
-            }
-
-            currentNode = openList[lowestFIndex]; //Current Node
-
-            openList.splice(lowestFIndex, 1); //Remove Current Node from openList
-
-            closedList.push(currentNode); //Add Current Node to closedList
-
-            //If we're at the End-Node, finish
-            if (currentNode === endNode) {
-                console.log("FOUND END!!!"); // здесь нужно восстановить путь
-            }
-
-            //Find the next Step towards the End
-            for (const neighbor of currentNode.neighbors) {
-                //If Neighbor is a Wall or in closedList, continue (skip it)
-                if (neighbor === 1 || closedList.includes(neighbor)) continue;
-
-                if (currentNode.f + 1 < neighbor.f || !openList.includes(neighbor)) {
-                    //Set G-Cost (Distance from Start-Node) of Neighbor
-                    //neighbor.g = currentNode.g + 1;
-                    neighbor.g = currentNode.g + Math.floor(manhattanHeuristic(currentNode.x, currentNode.y, neighbor.x, neighbor.y))
-                    //Set H-Cost (Distance to End-Node) of Neighbor
-                    neighbor.h = Math.floor(manhattanHeuristic(neighbor.x, neighbor.y, endNode.x, endNode.y))
-                    //Set F-Cost (sum of G-Cost + F-Cost) of neighbor
-                    neighbor.f = neighbor.g + neighbor.h;
-
-                    //Set Parent-Node
-                    neighbor.parent = currentNode;
-                    //Push Neighbor to the openList
-                    if (!openList.includes(neighbor)) openList.push(neighbor);
-
-                }
-            }
-        } else {
-            //If there are nomore items in openList[] and the end hasn't been found, the Search failed
-            console.log("No Solution!"); //Здесь нужно написать, что пути нет
+        if (valid(y - 1, x) && (maze[y - 1][x].value === 0) && !closedList.includes(maze[y - 1][x])) {
+            maze[y - 1][x].h = manhattanHeuristic(maze[y - 1][x], end) * 10
+            maze[y - 1][x].d = maze[x][y].d + 10
+            maze[y - 1][x].w = maze[y - 1][x].h + maze[y - 1][x].d
+            maze[y - 1][x].parent = maze[y][x]
+            openList.add(maze[y - 1][x]);
         }
+        if (valid(y, x + 1) && (maze[y][x + 1].value === 0) && !closedList.includes(maze[y][x + 1])) {
+            maze[y][x + 1].h = manhattanHeuristic(maze[y][x + 1], end) * 10
+            maze[y][x + 1].d = maze[x][y].d + 10
+            maze[y][x + 1].w = maze[y][x + 1].h + maze[y][x + 1].d
+            maze[y][x + 1].parent = maze[y][x]
+            openList.add(maze[y][x + 1]);
+        }
+        if (valid(y, x - 1) && (maze[y][x - 1].value === 0) && !closedList.includes(maze[y][x - 1])) {
+            maze[y][x - 1].h = manhattanHeuristic(maze[y][x - 1], end) * 10
+            maze[y][x - 1].d = maze[x][y].d + 10
+            maze[y][x - 1].w = maze[y][x - 1].h + maze[y][x - 1].d
+            maze[y][x - 1].parent = maze[y][x]
+            openList.add(maze[y][x - 1]);
+        }
+    }
+
+    function valid(a, b) {
+        return (a < sizeOfMaze && a >= 0 && b < sizeOfMaze && b >= 0);
+    }
+
+    function getMin(openList) {
+        let minValue = [...openList][0];
+        [...openList].forEach((elem) => {
+            if (elem.w < minValue.w) {
+                minValue = elem;
+            }
+        });
+        return minValue;
+    }
+
+    let openList = new Set();
+    let closedList = [];
+
+    getNeighbours(start.y, start.x, maze, table, end, openList, closedList)
+    closedList.push(start)
+    table.rows[start.y].cells[start.x].classList.replace('maze', 'active')
+    while (openList.size > 0) {
+
+        let current = getMin(openList)
+        if (current === end) {
+            table.rows[start.y].cells[start.x].classList.replace('active', 'path')
+            table.rows[current.y].cells[current.x].classList.replace('maze', 'path')
+            while (current != start) {
+                table.rows[current.y].cells[current.x].classList.replace('active', 'path')
+                current = current.parent
+            }
+            return
+        }
+        table.rows[current.y].cells[current.x].classList.replace('maze', 'active')
+        getNeighbours(current.y, current.x, maze, table, end, openList, closedList)
+        openList.delete(current)
+        closedList.push(current)
+    }
+    console.log('no way')
+
 }
-
-
-
-// Helper function to reconstruct the path from start to end node
 
 const createWallModeBtn = document.querySelector('#create-wall-mode-btn');
 const createPointModeBtn = document.querySelector('#create-point-mode-btn');
@@ -238,49 +220,6 @@ createMazeBtn.addEventListener('click', () => {
 });
 
 findPathBtn.addEventListener('click', () => {
-    aStar(maze[0][0], maze[4][0], maze);
+    findPath(maze[0][0], maze[20][2], maze, table);
 });
-
-
-
-// function getNeighbours(y,x, maze, table, end) {
-//     // table.rows[y].cells[x].classList.remove('maze');
-//     // table.rows[y].cells[x].classList.add('active');
-//     if (valid(y+1,x) && (maze[y+1][x] === 0)) {
-//         maze[y + 1][x].parent.x = x;
-//         maze[y + 1][x].parent.y = y;
-//         maze[y + 1][x].distance += 10
-//         maze[y + 1][x].heuristic = manhattanDistance(maze[y + 1][x], end) * 10
-//         neighboursList.push([y + 1, x, [y, x]]);
-//     }
-//
-//     if (valid(y-1,x) && (maze[y-1][x] === 0)) {
-//         maze[y - 1][x].parent.x = x;
-//         maze[y - 1][x].parent.y = y;
-//         maze[y - 1][x].distance += 10
-//         maze[y - 1][x].heuristic = manhattanDistance(maze[y - 1][x], end) * 10
-//         neighboursList.push([y - 1, x, [y, x]]);
-//     }
-//     if (valid(y,x+1) && (maze[y][x+1] === 0)) {
-//         maze[y][x + 1].parent.x = x;
-//         maze[y][x + 1].parent.y = y;
-//         maze[y][x + 1].distance = maze[y][x].distance += 10
-//         maze[y][x + 1].heuristic = manhattanDistance(maze[y][x + 1], end) * 10
-//         neighboursList.push([y, x + 1, [y, x]]);
-//     }
-//     if (valid(y,x-1) && (maze[y][x-1] === 0)) {
-//         maze[y][x - 1].parent.x = x;
-//         maze[y][x - 1].parent.y = y;
-//         maze[y][x - 1].distance += 10
-//         maze[y][x - 1].heuristic = manhattanDistance(maze[y][x - 1], end) * 10
-//         neighboursList.push([y, x - 1, [y, x]]);
-//     }
-// }
-// function valid(a,b) {
-//     return (a < sizeOfMaze && a >= 0 && b < sizeOfMaze && b >= 0);
-// }
-
-
-
-
 
