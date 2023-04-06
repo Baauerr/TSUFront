@@ -1,31 +1,83 @@
+class Node {
+    constructor(xIndex, yIndex, nodeSize) {
+        this.xIndex = xIndex; //X-Index in grid[]
+        this.yIndex = yIndex; //Y-Index in grid[]
+        this.x = xIndex * nodeSize; //X-Index in grid[] multiplied by nodeSize (e.g. 2 x 50) forms the grid
+        this.y = yIndex * nodeSize; //Y-Index in grid[] multiplied by nodeSize (e.g. 2 x 50) forms the grid
+        this.nodeSize = nodeSize; //Size of the Node in Pixels
+        this.parent = null; //Node's Parent Node
+        this.neighbors = []; //The Node's Neighbors
+        this.g = 0; //Cost from Start-Node
+        this.h = 0; //Heuristic cost to End-Node
+        this.f = 0; //F-Cost = Sum of G-Cost + H-Cost
+    }
+}
+
+
+const table = document.getElementById('my-table');
+table.style.borderCollapse = 'collapse';
+document.body.appendChild(table);
+
+let sizeOfMaze = 41
+const maze = new Array(sizeOfMaze);
+let createWallOrPointMode = null;
+
+for (let i = 0; i < sizeOfMaze; i++) {
+    maze[i] = new Array(sizeOfMaze);
+}
+
+for (let i = 0; i < sizeOfMaze; i++) {
+    for (let j = 0; j < sizeOfMaze; j++) {
+        maze[i][j] = new Node(i, j, sizeOfMaze);
+    }
+}
 
 function createTable() {
-    for (let i = 0; i < maze.length; i++) {
+    for (let y = 0; y < maze.length; y++) {
         const row = document.createElement('tr');
         table.appendChild(row);
-        for (let j = 0; j < maze[i].length; j++) {
-            maze[i][j] = 1
+        for (let x = 0; x < maze[y].length; x++) {
+            maze[y][x] = 1
             const cell = document.createElement('td');
-            cell.style.width = '20px';
-            cell.style.height = '20px';
-            cell.style.border = '1px solid black';
-            cell.style.backgroundColor = 'black';
+            cell.classList.add('cell');
+            row.appendChild(cell);
             cell.addEventListener('click', () => {
                 if (createWallOrPointMode === 1) {
-                    if (maze[i][j] === 1 || maze[i][j] === 2) {
-                        cell.style.backgroundColor = 'white';
-                        maze[i][j] = 0;
-                    } else if (maze[i][j].value === 0) {
-                        cell.style.backgroundColor = 'black'
-                        maze[i][j] = 1;
+                    switch (maze[y][x]){
+                        case 2:
+                            maze[y][x] = 1;
+                            cell.classList.remove('startEndPoint');
+                            cell.classList.add('wall');
+                            break;
+                        case 1:
+                            maze[y][x] = 0;
+                            cell.classList.remove('wall');
+                            cell.classList.add('maze');
+                            break
+                        case 0:
+                            maze[y][x] = 1;
+                            cell.classList.remove('maze');
+                            cell.classList.add('wall');
+                            break;
                     }
-                } else {
-                    if (maze[i][j].value === 1 || maze[i][j].value === 0) {
-                        cell.style.backgroundColor = 'green'
-                        maze[i][j] = 2;
-                    } else {
-                        cell.style.backgroundColor = 'white'
-                        maze[i][j] = 0;
+                }
+                else if (createWallOrPointMode === 0) {
+                    switch(maze[x][y]){
+                        case 2:
+                            maze[y][x] = 0;
+                            cell.classList.remove('startEndPoint');
+                            cell.classList.add('maze');
+                            break;
+                        case 1:
+                            maze[y][x] = 2;
+                            cell.classList.remove('wall');
+                            cell.classList.add('startEndPoint');
+                            break;
+                        case 0:
+                            maze[y][x] = 2;
+                            cell.classList.remove('maze');
+                            cell.classList.add('startEndPoint');
+                            break;
                     }
                 }
             });
@@ -34,31 +86,28 @@ function createTable() {
     }
 }
 
-const table = document.createElement('table');
-let sizeOfMaze = 51
-const maze = [];
-let createWallOrPointMode = 1;
-table.style.borderCollapse = 'collapse';
-document.body.appendChild(table);
-table.style.marginLeft = 520 + "px";
-table.style.marginTop = 100 + "px";
-for (let i = 0; i < sizeOfMaze * 2 + 1; i++) {
-    maze[i] = [];
-}
-for (let i = 0; i < sizeOfMaze; i++) {
-    for (let j = 0; j < sizeOfMaze; j++) {
-        maze[i][j] = null;
-    }
-}
-
-createTable(maze, createWallOrPointMode);
+createTable();
 function createMaze(maze, sizeOfMaze, table) {
+    for (let y = 0; y < sizeOfMaze; y++){
+        for (let x = 0; x < sizeOfMaze; x++){
+            switch (maze[y][x]){
+                case 0:
+                    table.rows[y].cells[x].classList.replace('maze','wall')
+                    break
+                case 2:
+                    table.rows[y].cells[x].classList.replace('startEndPoint','wall')
+                    break
+            }
+            maze[y][x] = 1
+        }
+    }
 
     let neighboursList = []
     function getNeighbours(y,x,addBlockWalls, maze, table) {
         maze[y][x] = 0;
-        table.rows[y].cells[x].style.backgroundColor = 'white'
-        if (addBlockWalls && valid(y+1,x) && (maze[y+1][x] === 1))
+        table.rows[y].cells[x].classList.remove('wall');
+        table.rows[y].cells[x].classList.add('maze');
+        if (addBlockWalls && valid(y+1,x) &&  (maze[y+1][x] === 1))
             neighboursList.push([y+1,  x , [y,x]]);
         if (addBlockWalls && valid(y-1,x) && (maze[y-1][x] === 1))
             neighboursList.push([y-1,  x , [y,x]]);
@@ -70,32 +119,111 @@ function createMaze(maze, sizeOfMaze, table) {
     function valid(a,b) {
         return (a < sizeOfMaze && a >= 0 && b < sizeOfMaze && b >= 0);
     }
-    let CordX = Math.floor(Math.random() * (sizeOfMaze - 2) + 1)
-    let CordY = Math.floor(Math.random() * (sizeOfMaze - 2) + 1)
-
-    console.log(CordY, CordX);
-
     getNeighbours(2, 2, true, maze, table)
     while (neighboursList.length !== 0) {
-        let randomWall = neighboursList[Math.floor(Math.random() * neighboursList.length)]
-        let host = randomWall[2]
-        let opposite = [(host[0] + (randomWall[0] - host[0]) * 2), (host[1] + (randomWall[1] - host[1]) * 2)]
-        if (valid(opposite[0], opposite[1])) {
-            if (maze[opposite[0]][opposite[1]] === 0)
+            let randomWall = neighboursList[Math.floor(Math.random() * neighboursList.length)]
+            let host = randomWall[2]
+            let opposite = [(host[0] + (randomWall[0] - host[0]) * 2), (host[1] + (randomWall[1] - host[1]) * 2)]
+            if (valid(opposite[0], opposite[1])) {
+                if (maze[opposite[0]][opposite[1]] === 0)
+                    neighboursList.splice(neighboursList.indexOf(randomWall), 1);
+                else
+                    getNeighbours(randomWall[0], randomWall[1], false, maze, table),
+                        getNeighbours(opposite[0], opposite[1], true, maze, table);
+
+            } else
                 neighboursList.splice(neighboursList.indexOf(randomWall), 1);
-            else
-                getNeighbours(randomWall[0], randomWall[1], false, maze, table),
-            getNeighbours(opposite[0], opposite[1], true, maze, table);
-        }
-        else
-            neighboursList.splice(neighboursList.indexOf(randomWall));
     }
 }
 console.log(maze);
 
+function aStar(startNode, endNode, maze) {
+    function manhattanHeuristic(startX, startY, endX, endY) {
+        return Math.abs(startX - endX) + Math.abs(startY - endY);
+    }
+
+        function findNeighbors(maze) {
+            for (let i = 0; i < maze.length; i++) {
+                for (let j = 0; j < maze[i].length; j++) {
+                    //Left Neighbor
+                    if (i > 0)
+                        maze[i][j].neighbors.push(maze[i - 1][j]);
+                    //Right Neighbor
+                    if (i < maze[i].length - 1)
+                        maze[i][j].neighbors.push(maze[i + 1][j]);
+                    //Upper Neighbor
+                    if (j > 0)
+                        maze[i][j].neighbors.push(maze[i][j - 1]);
+                    //Lower Neighbor
+                    if (j < maze[i].length - 1)
+                        maze[i][j].neighbors.push(maze[i][j + 1]);
+                }
+            }
+        }
+
+        findNeighbors(maze);
+
+        let openList = []; //Search-Queue
+        let closedList = []; //Finished Queue
+        let currentNode;
+
+        //As long as there are items in the openList[], the Search isn't done
+        if (!!openList.length) {
+
+            //Find the index of openList with the lowest F-Value
+            let lowestFIndex = 0;
+            for (let i = 0; i < openList.length - 1; i++) {
+                if (openList[i].f < openList[lowestFIndex].f) {
+                    lowestFIndex = i;
+                }
+            }
+
+            currentNode = openList[lowestFIndex]; //Current Node
+
+            openList.splice(lowestFIndex, 1); //Remove Current Node from openList
+
+            closedList.push(currentNode); //Add Current Node to closedList
+
+            //If we're at the End-Node, finish
+            if (currentNode === endNode) {
+                console.log("FOUND END!!!"); // здесь нужно восстановить путь
+            }
+
+            //Find the next Step towards the End
+            for (const neighbor of currentNode.neighbors) {
+                //If Neighbor is a Wall or in closedList, continue (skip it)
+                if (neighbor === 1 || closedList.includes(neighbor)) continue;
+
+                if (currentNode.f + 1 < neighbor.f || !openList.includes(neighbor)) {
+                    //Set G-Cost (Distance from Start-Node) of Neighbor
+                    //neighbor.g = currentNode.g + 1;
+                    neighbor.g = currentNode.g + Math.floor(manhattanHeuristic(currentNode.x, currentNode.y, neighbor.x, neighbor.y))
+                    //Set H-Cost (Distance to End-Node) of Neighbor
+                    neighbor.h = Math.floor(manhattanHeuristic(neighbor.x, neighbor.y, endNode.x, endNode.y))
+                    //Set F-Cost (sum of G-Cost + F-Cost) of neighbor
+                    neighbor.f = neighbor.g + neighbor.h;
+
+                    //Set Parent-Node
+                    neighbor.parent = currentNode;
+                    //Push Neighbor to the openList
+                    if (!openList.includes(neighbor)) openList.push(neighbor);
+
+                }
+            }
+        } else {
+            //If there are nomore items in openList[] and the end hasn't been found, the Search failed
+            console.log("No Solution!"); //Здесь нужно написать, что пути нет
+        }
+}
+
+
+
+// Helper function to reconstruct the path from start to end node
+
 const createWallModeBtn = document.querySelector('#create-wall-mode-btn');
 const createPointModeBtn = document.querySelector('#create-point-mode-btn');
 const createMazeBtn = document.querySelector('#create-maze-btn');
+const findPathBtn = document.querySelector('#find-path-btn');
 
 createWallModeBtn.addEventListener('click', () => {
     createWallOrPointMode = 1;
@@ -109,140 +237,48 @@ createMazeBtn.addEventListener('click', () => {
     createMaze(maze, sizeOfMaze, table);
 });
 
+findPathBtn.addEventListener('click', () => {
+    aStar(maze[0][0], maze[4][0], maze);
+});
 
-// function deleteWall(maze, x, y, table, sizeOfMaze){
-//     maze[y][x] = 0
-//     if (y + 2 < sizeOfMaze && maze[y + 2][x].value === 0){
-//         maze[y + 1][x].value = 0
-//         table.rows[y + 1].cells[x].style.backgroundColor = 'white';
-//         maze[y + 2][x].value = 0
-//         table.rows[y + 2].cells[x].style.backgroundColor = 'white';
+
+
+// function getNeighbours(y,x, maze, table, end) {
+//     // table.rows[y].cells[x].classList.remove('maze');
+//     // table.rows[y].cells[x].classList.add('active');
+//     if (valid(y+1,x) && (maze[y+1][x] === 0)) {
+//         maze[y + 1][x].parent.x = x;
+//         maze[y + 1][x].parent.y = y;
+//         maze[y + 1][x].distance += 10
+//         maze[y + 1][x].heuristic = manhattanDistance(maze[y + 1][x], end) * 10
+//         neighboursList.push([y + 1, x, [y, x]]);
 //     }
-//     else if (x + 2 < sizeOfMaze && maze[y][x + 2].value === 0){
-//         maze[y][x + 1].value = 0
-//         table.rows[y].cells[x + 1].style.backgroundColor = 'white';
-//         maze[y][x + 2].value = 0
-//         table.rows[y].cells[x + 2].style.backgroundColor = 'white';
+//
+//     if (valid(y-1,x) && (maze[y-1][x] === 0)) {
+//         maze[y - 1][x].parent.x = x;
+//         maze[y - 1][x].parent.y = y;
+//         maze[y - 1][x].distance += 10
+//         maze[y - 1][x].heuristic = manhattanDistance(maze[y - 1][x], end) * 10
+//         neighboursList.push([y - 1, x, [y, x]]);
 //     }
-//     else if ( y - 2 >= 0 && maze[y - 2][x].value === 0){
-//         maze[y - 1][x].value = 0;
-//         table.rows[y - 1].cells[x].style.backgroundColor = 'white';
-//         maze[y - 2][x].value = 0;
-//         table.rows[y - 2].cells[x].style.backgroundColor = 'white';
+//     if (valid(y,x+1) && (maze[y][x+1] === 0)) {
+//         maze[y][x + 1].parent.x = x;
+//         maze[y][x + 1].parent.y = y;
+//         maze[y][x + 1].distance = maze[y][x].distance += 10
+//         maze[y][x + 1].heuristic = manhattanDistance(maze[y][x + 1], end) * 10
+//         neighboursList.push([y, x + 1, [y, x]]);
 //     }
-//     else if (x - 2 >= 0 && maze[y][x - 2].value === 0 ){
-//         maze[y][x - 1].value = 0
-//         table.rows[y].cells[x - 1].style.backgroundColor = 'white';
-//         maze[y][x - 2].value = 0
-//         table.rows[y].cells[x - 2].style.backgroundColor = 'white';
+//     if (valid(y,x-1) && (maze[y][x-1] === 0)) {
+//         maze[y][x - 1].parent.x = x;
+//         maze[y][x - 1].parent.y = y;
+//         maze[y][x - 1].distance += 10
+//         maze[y][x - 1].heuristic = manhattanDistance(maze[y][x - 1], end) * 10
+//         neighboursList.push([y, x - 1, [y, x]]);
 //     }
 // }
-// function findNeighbour(y,x,addBlockWalls) {
-//     maze[y][x] = 0;
-//     if (addBlockWalls && valid(y+1,x) && (maze[y+1][x].value === 1)) walls.push([y+1,  x , [y,x]]);
-//     if (addBlockWalls && valid(y-1,x) && (maze[y-1][x].value === 1)) walls.push([y-1,  x , [y,x]]);
-//     if (addBlockWalls && valid(y,x+1) && (maze[y][x+1].value === 1)) walls.push([ y , x+1, [y,x]]);
-//     if (addBlockWalls && valid(y,x-1) && (maze[y][x-1].value === 1)) walls.push([ y , x-1, [y,x]]);
+// function valid(a,b) {
+//     return (a < sizeOfMaze && a >= 0 && b < sizeOfMaze && b >= 0);
 // }
-
-
-
-
-// deleteWall(maze, currentPoint.x, currentPoint.y, table)
-// getNeighbours( maze, currentPoint.x, currentPoint.y);
-// neighboursList.delete(currentPoint);
-
-
-//     function getNeighbours(y, x, addBlockWalls){
-//         maze[x][y].value = 0
-//         if (addBlockWalls && y + 2 < sizeOfMaze && maze[y + 2][x].value === 1){
-//             maze[y + 2][x].x = x;
-//             maze[y + 2][x].y = y + 2;
-//             neighboursList.push(maze[y + 2][x])
-//         }
-//         if (addBlockWalls && x + 2 < sizeOfMaze && maze[y][x + 2].value === 1){
-//             maze[y][x + 2].x = x + 2;
-//             maze[y][x + 2].y = y;
-//             neighboursList.push(maze[y][x + 2])
-//         }
-//         if (addBlockWalls && y - 2 >= 0 && maze[y - 2][x].value === 1){
-//             maze[y - 2][x].x = x;
-//             maze[y - 2][x].y = y - 2;
-//             neighboursList.push(maze[y - 2][x])
-//         }
-//         if (addBlockWalls && x - 2 >= 0 && maze[y][x - 2].value === 1){
-//             maze[y][x - 2].x = x - 2;
-//             maze[y][x - 2].y = y;
-//             neighboursList.push(maze[y][x - 2])
-//         }
-//     }
-
-
-
-
-
-
-
-//ПОСМОТРИ И РАЗБЕРИСЬ, МОЖЕТ ПРИГОДИТЬСЯ!!!
-
-// function astar(startNode, goalNode) {
-//     // Определяем эвристическую функцию
-//     function heuristic(node) {
-//         const dx = Math.abs(node.x - goalNode.x);
-//         const dy = Math.abs(node.y - goalNode.y);
-//         return dx + dy;
-//     }
-//
-//     // Создаем объекты для хранения стоимости пути и родительских узлов
-//     const gScore = new maze();
-//     const fScore = new maze();
-//     const parent = new maze();
-//
-//     // Создаем очередь с приоритетом
-//     const openSet = new PriorityQueue((a, b) => fScore.get(a) < fScore.get(b));
-//
-//     // Добавляем начальную вершину в очередь с приоритетом и устанавливаем ее стоимость пути на 0
-//     openSet.enqueue(startNode);
-//     gScore.set(startNode, 0);
-//
-//     // Устанавливаем стоимость пути от начальной вершины до целевой равной бесконечности
-//     fScore.set(startNode, heuristic(startNode));
-//
-//     while (!openSet.isEmpty()) {
-//         // Извлекаем узел с наименьшей оценкой из очереди
-//         const current = openSet.dequeue();
-//
-//         // Если текущий узел является целевым, возвращаем путь
-//         if (current === goalNode) {
-//             const path = [current];
-//             while (parent.has(current)) {
-//                 current = parent.get(current);
-//                 path.unshift(current);
-//             }
-//             return path;
-//         }
-//
-//         // Иначе просматриваем соседей текущего узла
-//         for (const neighbor of current.neighbors) {
-//             // Вычисляем стоимость пути от начальной вершины до текущей вершины через текущий узел
-//             const tentativeGScore = gScore.get(current) + current.costTo(neighbor);
-//
-//             // Если путь через текущий узел короче, чем имеющийся, обновляем стоимость пути
-//             if (!gScore.has(neighbor) || tentativeGScore < gScore.get(neighbor)) {
-//                 parent.set(neighbor, current);
-//                 gScore.set(neighbor, tentativeGScore);
-//                 fScore.set(neighbor, tentativeGScore + heuristic(neighbor));
-//                 if (!openSet.includes(neighbor)) {
-//                     openSet.enqueue(neighbor);
-//                 }
-//             }
-//         }
-//     }
-//
-//     // Если целевой узел недостижим, возвращаем пустой путь
-//     return [];
-// }
-
 
 
 
