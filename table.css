@@ -1,0 +1,33 @@
+#my-table{
+    border-сollapse: collapse;
+
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+td{
+    width: 20px;
+    height: 20px;
+    background-color: black;
+}
+
+.maze {
+    background-color: white;
+}
+.wall {
+    background-color: black;
+}
+.startEndPoint {
+    background-color: green;
+}
+.active {
+     background-color: yellowgreen;
+ }
+
+.path{
+    background-color: gold;
+}
+.neighbor{
+    background-color: aquamarine;
+}
