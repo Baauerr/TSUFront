@@ -2,90 +2,143 @@ const table = document.getElementById('my-table');
 table.style.borderCollapse = 'collapse';
 document.body.appendChild(table);
 
-// let myInput = document.getElementById('myInput');
-// let sizeOfMaze = parseInt(myInput.value)
-let sizeOfMaze = 47
-const maze = [];
+let maze = [];
 let createWallOrPointMode = null;
-
-for (let i = 0; i < sizeOfMaze; i++) {
-    maze[i] = [];
-}
-
-for (let i = 0; i < sizeOfMaze; i++) {
-    for (let j = 0; j < sizeOfMaze; j++) {
-        maze[i][j] = {
-            value: 1,
-            y: i,
-            x: j,
-            h: 0,
-            d: 0,
-            w: 0,
-            neighbors: [],
-            parent: null,
-        };
-    }
-}
-
+let sizeOfMaze
+let start = null;
+let end = null;
+let startMode = {
+    value: 2,
+    y: 0,
+    x: 0,
+};
+let endMode = {
+    value: 2,
+    y: 0,
+    x: 0,
+};
 function createTable() {
+    sizeOfMaze = document.getElementById("myNumberInput").value;
+    for (let i = 0; i < sizeOfMaze; i++) {
+        maze[i] = [];
+        for (let j = 0; j < sizeOfMaze; j++) {
+            maze[i][j] = {
+                value: 1,
+                y: i,
+                x: j,
+                h: 0,
+                d: 0,
+                w: 0,
+                neighbors: [],
+                parent: null,
+            };
+        }
+    }
     for (let y = 0; y < maze.length; y++) {
         const row = document.createElement('tr');
         table.appendChild(row);
         for (let x = 0; x < maze[y].length; x++) {
-            maze[y][x].value = 1
             const cell = document.createElement('td');
             cell.classList.add('cell');
             row.appendChild(cell);
             cell.addEventListener('click', () => {
-                if (createWallOrPointMode === 1) {
-                    switch (maze[y][x].value) {
-                        case 2:
-                            maze[y][x].value = 1;
-                            cell.className = '';
-                            cell.classList.add('wall');
-                            break;
-                        case 1:
-                            maze[y][x].value = 0;
-                            cell.className = '';
-                            cell.classList.add('maze');
-                            break
-                        case 0:
-                            maze[y][x].value = 1;
-                            cell.className = '';
-                            cell.classList.add('wall');
-                            break;
-                    }
-                } else if (createWallOrPointMode === 0) {
-                    switch (maze[x][y].value) {
-                        case 2:
-                            maze[y][x].value = 0;
-                            cell.className = '';
-                            cell.classList.add('maze');
-                            break;
-                        case 1:
-                            maze[y][x].value = 2;
-                            cell.className = '';
-                            cell.classList.add('startEndPoint');
-                            break;
-                        case 0:
-                            maze[y][x].value = 2;
-                            cell.className = '';
-                            cell.classList.add('startEndPoint');
-                            break;
-                    }
+                switch (createWallOrPointMode) {
+                    case "wall":
+                        switch (maze[y][x].value) {
+                            case 2:
+                                if (start === maze[y][x]){
+                                    startMode = 0
+                                }
+                                if (end === maze[y][x]){
+                                    endMode = 0
+                                }
+                                maze[y][x].value = 1;
+                                cell.className = '';
+                                cell.classList.add('wall');
+                                break;
+                            case 1:
+                                maze[y][x].value = 0;
+                                cell.className = '';
+                                cell.classList.add('maze');
+                                break
+                            case 0:
+                                maze[y][x].value = 1;
+                                cell.className = '';
+                                cell.classList.add('wall');
+                                break;
+                        }
+                        break
+                    case "start":
+                            switch (maze[x][y].value) {
+                                case 2:
+                                    maze[y][x].value = 0;
+                                    cell.className = '';
+                                    cell.classList.add('maze');
+                                    startMode = 0;
+                                    break;
+                                case 1:
+                                    if (startMode === 1) {
+                                        break;
+                                    }
+                                    start = maze[y][x];
+                                    startMode = 1;
+                                    cell.className = '';
+                                    cell.classList.add('startEndPoint');
+                                    break;
+                                case 0:
+                                    if (startMode === 1) {
+                                        break
+                                    }
+                                    start = maze[y][x]
+                                    startMode = 1;
+                                    cell.className = '';
+                                    cell.classList.add('startEndPoint');
+                                    break;
+                        }
+                        break
+                    case "end":
+                        switch (maze[x][y].value) {
+                            case 1:
+                                if (endMode === 1) {
+                                    break;
+                                }
+                                end = maze[y][x]
+                                cell.className = '';
+                                cell.classList.add('startEndPoint');
+                                endMode = 1
+                                break;
+                            case 0:
+                                if (endMode === 1) {
+                                    break;
+                                }
+                                end = maze[y][x]
+                                cell.className = '';
+                                cell.classList.add('startEndPoint');
+                                endMode = 1
+                                break;
+                            case 2:
+                                maze[y][x].value = 0;
+                                cell.className = '';
+                                cell.classList.add('maze');
+                                endMode = 0
+                                break;
+                        }
                 }
             });
             row.appendChild(cell);
         }
     }
 }
-createTable();
+
 function createMaze(maze, sizeOfMaze, table) {
+
     for (let y = 0; y < sizeOfMaze; y++) {
         for (let x = 0; x < sizeOfMaze; x++) {
             table.rows[y].cells[x].className = '';
             table.rows[y].cells[x].classList.add('wall');
             maze[y][x].value = 1
+            startMode = 0
+            endMode = 0
         }
     }
     let neighboursList = []
@@ -108,21 +161,27 @@ function createMaze(maze, sizeOfMaze, table) {
         return (a < sizeOfMaze && a >= 0 && b < sizeOfMaze && b >= 0);
     }
 
-    getNeighbours(2, 2, true, maze, table)
-    while (neighboursList.length !== 0) {
-         let randomWall = neighboursList[Math.floor(Math.random() * neighboursList.length)]
-        let host = randomWall[2]
-        let opposite = [(host[0] + (randomWall[0] - host[0]) * 2), (host[1] + (randomWall[1] - host[1]) * 2)]
-        if (valid(opposite[0], opposite[1])) {
-            if (maze[opposite[0]][opposite[1]].value === 0)
-                neighboursList.splice(neighboursList.indexOf(randomWall), 1);
-            else
-                getNeighbours(randomWall[0], randomWall[1], false, maze, table),
-                    getNeighbours(opposite[0], opposite[1], true, maze, table);
+    function processNextIteration() {
+        if (neighboursList.length !== 0) {
+            let randomWall = neighboursList[Math.floor(Math.random() * neighboursList.length)]
+            let host = randomWall[2]
+            let opposite = [(host[0] + (randomWall[0] - host[0]) * 2), (host[1] + (randomWall[1] - host[1]) * 2)]
+            if (valid(opposite[0], opposite[1])) {
+                if (maze[opposite[0]][opposite[1]].value === 0)
+                    neighboursList.splice(neighboursList.indexOf(randomWall), 1);
+                else
+                    getNeighbours(randomWall[0], randomWall[1], false, maze, table),
+                        getNeighbours(opposite[0], opposite[1], true, maze, table);
 
-        } else
-            neighboursList.splice(neighboursList.indexOf(randomWall), 1);
+            } else
+                neighboursList.splice(neighboursList.indexOf(randomWall), 1);
+
+            setTimeout(processNextIteration, 0);
+        }
     }
+
+    getNeighbours(2, 2, true, maze, table)
+    processNextIteration();
 }
 
 function findPath(start, end, maze, table) {
@@ -182,9 +241,8 @@ function findPath(start, end, maze, table) {
     closedList.push(start)
     table.rows[start.y].cells[start.x].classList.replace('maze', 'active')
     while (openList.size > 0) {
-
         let current = getMin(openList)
-        if (current === end) {
+        if (current.x === end.x && current.y === end.y) {
             table.rows[start.y].cells[start.x].classList.replace('active', 'path')
             table.rows[current.y].cells[current.x].classList.replace('maze', 'path')
             while (current != start) {
@@ -199,20 +257,25 @@ function findPath(start, end, maze, table) {
         closedList.push(current)
     }
     console.log('no way')
-
 }
 
+
 const createWallModeBtn = document.querySelector('#create-wall-mode-btn');
-const createPointModeBtn = document.querySelector('#create-point-mode-btn');
+const setStartBtn = document.querySelector('#start-btn');
+const setEndBtn = document.querySelector('#end-btn');
 const createMazeBtn = document.querySelector('#create-maze-btn');
 const findPathBtn = document.querySelector('#find-path-btn');
 
-createWallModeBtn.addEventListener('click', () => {
-    createWallOrPointMode = 1;
+setEndBtn.addEventListener('click', () => {
+    createWallOrPointMode = "end";
 });
 
-createPointModeBtn.addEventListener('click', () => {
-    createWallOrPointMode = 0;
+createWallModeBtn.addEventListener('click', () => {
+    createWallOrPointMode = "wall";
+});
+
+setStartBtn.addEventListener('click', () => {
+    createWallOrPointMode = "start";
 });
 
 createMazeBtn.addEventListener('click', () => {
@@ -220,6 +283,5 @@ createMazeBtn.addEventListener('click', () => {
 });
 
 findPathBtn.addEventListener('click', () => {
-    findPath(maze[0][0], maze[20][2], maze, table);
+    findPath(start, end, maze, table);
 });
-
