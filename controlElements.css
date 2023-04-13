@@ -1,17 +1,14 @@
 #buttons{
-    position: absolute;
-    top: 87%;
-    left: 42%;
     scale: inherit;
+    order: 4;
 }
 
-#myInput{
-    position: absolute;
-    top: 89%;
-    left: 41%;
+
+#myNumberInput{
     width: 457px;
     height: 30px;
     background-color: #fff;
     color: #000;
     border: 1px solid #ccc;
+    order: 5;
 }

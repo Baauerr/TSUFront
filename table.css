@@ -1,3 +1,9 @@
+#aStar{
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    padding-bottom: 200px;
+    order: 1;
+}
+
 #my-table{
     border-сollapse: collapse;
 
@@ -22,8 +28,8 @@ td{
     background-color: green;
 }
 .active {
-     background-color: yellowgreen;
- }
+    background-color: yellowgreen;
+}
 
 .path{
     background-color: gold;

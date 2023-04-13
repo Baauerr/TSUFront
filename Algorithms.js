@@ -18,6 +18,13 @@ let endMode = {
     x: 0,
 };
 function createTable() {
+
+    table.style.setProperty('--sizeOfMaze', sizeOfMaze);
+    for (let i = table.rows.length - 1; i >= 0; i--) {
+        table.deleteRow(i);
+        maze[i] = []
+    }
+
     sizeOfMaze = document.getElementById("myNumberInput").value;
     for (let i = 0; i < sizeOfMaze; i++) {
         maze[i] = [];
@@ -39,7 +46,6 @@ function createTable() {
         table.appendChild(row);
         for (let x = 0; x < maze[y].length; x++) {
             const cell = document.createElement('td');
-            cell.classList.add('cell');
             row.appendChild(cell);
             cell.addEventListener('click', () => {
                 switch (createWallOrPointMode) {
@@ -48,9 +54,11 @@ function createTable() {
                             case 2:
                                 if (start === maze[y][x]){
                                     startMode = 0
+                                    start = null
                                 }
                                 if (end === maze[y][x]){
                                     endMode = 0
+                                    end = null
                                 }
                                 maze[y][x].value = 1;
                                 cell.className = '';
@@ -78,7 +86,7 @@ function createTable() {
                                     break;
                                 case 1:
                                     if (startMode === 1) {
-                                        break;
+                                        break
                                     }
                                     start = maze[y][x];
                                     startMode = 1;
@@ -129,7 +137,6 @@ function createTable() {
         }
     }
 }
-
 function createMaze(maze, sizeOfMaze, table) {
 
     for (let y = 0; y < sizeOfMaze; y++) {
@@ -176,7 +183,7 @@ function createMaze(maze, sizeOfMaze, table) {
             } else
                 neighboursList.splice(neighboursList.indexOf(randomWall), 1);
 
-            setTimeout(processNextIteration, 0);
+            setTimeout(processNextIteration, 0.01);
         }
     }
 
@@ -185,6 +192,9 @@ function createMaze(maze, sizeOfMaze, table) {
 }
 
 function findPath(start, end, maze, table) {
+
+    let information = "Path found!"
+
     function manhattanHeuristic(start, end) {
         return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     }
@@ -240,23 +250,35 @@ function findPath(start, end, maze, table) {
     getNeighbours(start.y, start.x, maze, table, end, openList, closedList)
     closedList.push(start)
     table.rows[start.y].cells[start.x].classList.replace('maze', 'active')
-    while (openList.size > 0) {
-        let current = getMin(openList)
-        if (current.x === end.x && current.y === end.y) {
-            table.rows[start.y].cells[start.x].classList.replace('active', 'path')
-            table.rows[current.y].cells[current.x].classList.replace('maze', 'path')
-            while (current != start) {
-                table.rows[current.y].cells[current.x].classList.replace('active', 'path')
-                current = current.parent
+
+    async function visualizePathFinding() {
+        while (openList.size > 0) {
+            let current = getMin(openList);
+
+            if (current.x === end.x && current.y === end.y) {
+                document.getElementById("text-area").innerHTML = information;
+                table.rows[start.y].cells[start.x].classList.replace('active', 'path');
+                table.rows[current.y].cells[current.x].classList.replace('maze', 'path');
+                async function visualizePath() {
+                    while (current != start) {
+                        table.rows[current.y].cells[current.x].classList.replace('active', 'path');
+                        current = current.parent;
+                        await new Promise(resolve => setTimeout(resolve, 30));
+                    }
+                }
+                visualizePath()
+                return;
             }
-            return
+            table.rows[current.y].cells[current.x].classList.replace('maze', 'active');
+            getNeighbours(current.y, current.x, maze, table, end, openList, closedList);
+            openList.delete(current);
+            closedList.push(current);
+            await new Promise(resolve => setTimeout(resolve, 30)); // добавляем задержку в 500 миллисекунд
         }
-        table.rows[current.y].cells[current.x].classList.replace('maze', 'active')
-        getNeighbours(current.y, current.x, maze, table, end, openList, closedList)
-        openList.delete(current)
-        closedList.push(current)
+        information = "No way!";
+        document.getElementById("text-area").innerHTML = information;
     }
-    console.log('no way')
+    visualizePathFinding()
 }
 
 
