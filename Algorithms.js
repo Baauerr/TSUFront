@@ -1,12 +1,15 @@
 const table = document.getElementById('my-table');
 table.style.borderCollapse = 'collapse';
-document.body.appendChild(table);
+const container = document.querySelector('.container');
+container.appendChild(table);
 
 let maze = [];
+
 let createWallOrPointMode = null;
 let sizeOfMaze
 let start = null;
 let end = null;
+let information = ""
 let startMode = {
     value: 2,
     y: 0,
@@ -17,12 +20,17 @@ let endMode = {
     y: 0,
     x: 0,
 };
+
+
+
 function createTable() {
 
-    table.style.setProperty('--sizeOfMaze', sizeOfMaze);
     for (let i = table.rows.length - 1; i >= 0; i--) {
         table.deleteRow(i);
         maze[i] = []
+        start = null
+        end = null
+        information = ""
     }
 
     sizeOfMaze = document.getElementById("myNumberInput").value;
@@ -91,7 +99,7 @@ function createTable() {
                                     start = maze[y][x];
                                     startMode = 1;
                                     cell.className = '';
-                                    cell.classList.add('startEndPoint');
+                                    cell.classList.add('startPoint');
                                     break;
                                 case 0:
                                     if (startMode === 1) {
@@ -100,7 +108,7 @@ function createTable() {
                                     start = maze[y][x]
                                     startMode = 1;
                                     cell.className = '';
-                                    cell.classList.add('startEndPoint');
+                                    cell.classList.add('startPoint');
                                     break;
                         }
                         break
@@ -112,7 +120,7 @@ function createTable() {
                                 }
                                 end = maze[y][x]
                                 cell.className = '';
-                                cell.classList.add('startEndPoint');
+                                cell.classList.add('endPoint');
                                 endMode = 1
                                 break;
                             case 0:
@@ -121,7 +129,7 @@ function createTable() {
                                 }
                                 end = maze[y][x]
                                 cell.className = '';
-                                cell.classList.add('startEndPoint');
+                                cell.classList.add('endPoint');
                                 endMode = 1
                                 break;
                             case 2:
@@ -146,6 +154,9 @@ function createMaze(maze, sizeOfMaze, table) {
             maze[y][x].value = 1
             startMode = 0
             endMode = 0
+            start = null
+            end = null
+            information = ""
         }
     }
     let neighboursList = []
@@ -193,7 +204,6 @@ function createMaze(maze, sizeOfMaze, table) {
 
 function findPath(start, end, maze, table) {
 
-    let information = "Path found!"
 
     function manhattanHeuristic(start, end) {
         return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
@@ -256,6 +266,7 @@ function findPath(start, end, maze, table) {
             let current = getMin(openList);
 
             if (current.x === end.x && current.y === end.y) {
+                information = "Path found!"
                 document.getElementById("text-area").innerHTML = information;
                 table.rows[start.y].cells[start.x].classList.replace('active', 'path');
                 table.rows[current.y].cells[current.x].classList.replace('maze', 'path');

@@ -2,17 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>aStar</title>
     <link rel="stylesheet" href="css/table.css">
     <link rel="stylesheet" href="css/controlElements.css">
 </head>
 <body bgcolor="#778899">
     <div class = "container">
         <h1 id = "aStar">A* (A - star)</h1>
-        <table id = "my-table"></table>
         <div id="text-area"></div>
         <input type="number" id="myNumberInput" onkeydown="if(event.keyCode===13) createTable()">
-
         <div id = "buttons">
                 <button id="create-wall-mode-btn">Create Wall Mode</button>
                 <button id="create-maze-btn">Create maze</button>
@@ -20,8 +18,9 @@
                 <button id="start-btn"> Set start</button>
                 <button id="end-btn"> Set end</button>
         </div>
+        <table id = "my-table" class = table></table>
+        <script src="Algorithms.js"></script>
     </div>
-    <script src="Algorithms.js"></script>
 </body>
 </html>
 
