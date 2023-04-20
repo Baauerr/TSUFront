@@ -7,29 +7,20 @@ let maze = [];
 
 let createWallOrPointMode = null;
 let sizeOfMaze
-let start = null;
+let start = null
 let end = null;
 let information = ""
-let startMode = {
-    value: 2,
-    y: 0,
-    x: 0,
-};
-let endMode = {
-    value: 2,
-    y: 0,
-    x: 0,
-};
-
-
+let startMode = 0
+let endMode = 0
 
 function createTable() {
-
     for (let i = table.rows.length - 1; i >= 0; i--) {
         table.deleteRow(i);
         maze[i] = []
         start = null
         end = null
+        startMode = 0
+        endMode = 0
         information = ""
     }
 
@@ -60,13 +51,13 @@ function createTable() {
                     case "wall":
                         switch (maze[y][x].value) {
                             case 2:
-                                if (start === maze[y][x]){
-                                    startMode = 0
-                                    start = null
+                                if (start.y === maze[y][x].y && start.x === maze[y][x].x) {
+                                    startMode = 0;
+                                    start = null;
                                 }
-                                if (end === maze[y][x]){
-                                    endMode = 0
-                                    end = null
+                                if (end.y === maze[y][x].y && end.x === maze[y][x].x) {
+                                    endMode = 0;
+                                    end = null;
                                 }
                                 maze[y][x].value = 1;
                                 cell.className = '';
@@ -76,7 +67,7 @@ function createTable() {
                                 maze[y][x].value = 0;
                                 cell.className = '';
                                 cell.classList.add('maze');
-                                break
+                                break;
                             case 0:
                                 maze[y][x].value = 1;
                                 cell.className = '';
@@ -85,58 +76,76 @@ function createTable() {
                         }
                         break
                     case "start":
-                            switch (maze[x][y].value) {
-                                case 2:
-                                    maze[y][x].value = 0;
-                                    cell.className = '';
-                                    cell.classList.add('maze');
+                        switch (maze[y][x].value) {
+                            case 2:
+                                if (start !== null && (start.y === maze[y][x].y && start.x === maze[y][x].x)) {
                                     startMode = 0;
+                                    start = null;
+                                }
+                                if (end !== null && (end.y === maze[y][x].y && end.x === maze[y][x].x)) {
+                                    endMode = 0;
+                                    end = null;
+                                }
+                                maze[y][x].value = 0;
+                                cell.className = '';
+                                cell.classList.add('maze');
+                                break;
+                            case 1:
+                                if (startMode === 1) {
                                     break;
-                                case 1:
-                                    if (startMode === 1) {
-                                        break
-                                    }
-                                    start = maze[y][x];
-                                    startMode = 1;
-                                    cell.className = '';
-                                    cell.classList.add('startPoint');
+                                }
+                                maze[y][x].value = 2;
+                                start = maze[y][x];
+                                startMode = 1;
+                                cell.className = '';
+                                cell.classList.add('startPoint');
+                                break;
+                            case 0:
+                                if (startMode === 1) {
                                     break;
-                                case 0:
-                                    if (startMode === 1) {
-                                        break
-                                    }
-                                    start = maze[y][x]
-                                    startMode = 1;
-                                    cell.className = '';
-                                    cell.classList.add('startPoint');
-                                    break;
+                                }
+                                maze[y][x].value = 2;
+                                start = maze[y][x];
+                                startMode = 1;
+                                cell.className = '';
+                                cell.classList.add('startPoint');
+                                break;
                         }
                         break
                     case "end":
-                        switch (maze[x][y].value) {
+                        switch (maze[y][x].value) {
+                            case 2:
+                                if (start !== null && (start.y === maze[y][x].y && start.x === maze[y][x].x)) {
+                                    startMode = 0;
+                                    start = null;
+                                }
+                                if (end !== null && (end.y === maze[y][x].y && end.x === maze[y][x].x)) {
+                                    endMode = 0;
+                                    end = null;
+                                }
+                                maze[y][x].value = 0;
+                                cell.className = '';
+                                cell.classList.add('maze');
+                                break;
                             case 1:
                                 if (endMode === 1) {
                                     break;
                                 }
-                                end = maze[y][x]
+                                maze[y][x].value = 2;
+                                end = maze[y][x];
+                                endMode = 1;
                                 cell.className = '';
                                 cell.classList.add('endPoint');
-                                endMode = 1
                                 break;
                             case 0:
                                 if (endMode === 1) {
                                     break;
                                 }
-                                end = maze[y][x]
+                                maze[y][x].value = 2;
+                                end = maze[y][x];
+                                endMode = 1;
                                 cell.className = '';
                                 cell.classList.add('endPoint');
-                                endMode = 1
-                                break;
-                            case 2:
-                                maze[y][x].value = 0;
-                                cell.className = '';
-                                cell.classList.add('maze');
-                                endMode = 0
                                 break;
                         }
                 }
@@ -145,6 +154,7 @@ function createTable() {
         }
     }
 }
+
 function createMaze(maze, sizeOfMaze, table) {
 
     for (let y = 0; y < sizeOfMaze; y++) {
@@ -197,41 +207,38 @@ function createMaze(maze, sizeOfMaze, table) {
             setTimeout(processNextIteration, 0.01);
         }
     }
-
     getNeighbours(2, 2, true, maze, table)
     processNextIteration();
 }
 
-function findPath(start, end, maze, table) {
-
-
+function findPath() {
     function manhattanHeuristic(start, end) {
         return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     }
 
     function getNeighbours(y, x, maze, table, end, openList, closedList) {
-        if (valid(y + 1, x) && (maze[y + 1][x].value === 0) && !closedList.includes(maze[y + 1][x])) {
+        if (valid(y + 1, x) && (maze[y + 1][x].value !== 1) && !closedList.includes(maze[y + 1][x])) {
             maze[y + 1][x].h = manhattanHeuristic(maze[y + 1][x], end) * 10
             maze[y + 1][x].d = maze[x][y].d + 10
             maze[y + 1][x].w = maze[y + 1][x].h + maze[y + 1][x].d
             maze[y + 1][x].parent = maze[y][x]
             openList.add(maze[y + 1][x]);
         }
-        if (valid(y - 1, x) && (maze[y - 1][x].value === 0) && !closedList.includes(maze[y - 1][x])) {
+        if (valid(y - 1, x) && (maze[y - 1][x].value !== 1) && !closedList.includes(maze[y - 1][x])) {
             maze[y - 1][x].h = manhattanHeuristic(maze[y - 1][x], end) * 10
             maze[y - 1][x].d = maze[x][y].d + 10
             maze[y - 1][x].w = maze[y - 1][x].h + maze[y - 1][x].d
             maze[y - 1][x].parent = maze[y][x]
             openList.add(maze[y - 1][x]);
         }
-        if (valid(y, x + 1) && (maze[y][x + 1].value === 0) && !closedList.includes(maze[y][x + 1])) {
+        if (valid(y, x + 1) && (maze[y][x + 1].value !== 1) && !closedList.includes(maze[y][x + 1])) {
             maze[y][x + 1].h = manhattanHeuristic(maze[y][x + 1], end) * 10
             maze[y][x + 1].d = maze[x][y].d + 10
             maze[y][x + 1].w = maze[y][x + 1].h + maze[y][x + 1].d
             maze[y][x + 1].parent = maze[y][x]
             openList.add(maze[y][x + 1]);
         }
-        if (valid(y, x - 1) && (maze[y][x - 1].value === 0) && !closedList.includes(maze[y][x - 1])) {
+        if (valid(y, x - 1) && (maze[y][x - 1].value !== 1) && !closedList.includes(maze[y][x - 1])) {
             maze[y][x - 1].h = manhattanHeuristic(maze[y][x - 1], end) * 10
             maze[y][x - 1].d = maze[x][y].d + 10
             maze[y][x - 1].w = maze[y][x - 1].h + maze[y][x - 1].d
@@ -266,12 +273,12 @@ function findPath(start, end, maze, table) {
             let current = getMin(openList);
 
             if (current.x === end.x && current.y === end.y) {
-                information = "Path found!"
+                information = "Path found!";
                 document.getElementById("text-area").innerHTML = information;
                 table.rows[start.y].cells[start.x].classList.replace('active', 'path');
                 table.rows[current.y].cells[current.x].classList.replace('maze', 'path');
                 async function visualizePath() {
-                    while (current != start) {
+                    while (current !== start) {
                         table.rows[current.y].cells[current.x].classList.replace('active', 'path');
                         current = current.parent;
                         await new Promise(resolve => setTimeout(resolve, 30));
