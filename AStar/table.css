@@ -5,7 +5,8 @@ html {
 #aStar {
     font-weight: bold;
     font-family: 'Courier New', Courier, monospace;
-    padding-bottom: 1vw;
+    padding-bottom: 6px;
+    font-size: 28px;
     order: 1;
 }
 
@@ -36,20 +37,20 @@ td:active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    height: 95vh;
     position: relative;
 }
 
 #textArea {
     border-radius: 10px;
     width: 400px;
-    height: 60px;
+    height: 50px;
     border: 2px solid black;
     background-color: white;
     order: 3;
     margin-bottom: 10px;
     text-align-last: center;
-    line-height: 60px;
+    line-height: 50px;
     font-size: 25px;
     font-weight: bold;
     font-family: 'Courier New', Courier, monospace;
