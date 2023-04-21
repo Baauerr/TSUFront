@@ -10,6 +10,7 @@ window.onload = function() {
 
 let circles = [];
 let id=0;
+let flagFirst = true;
 
 class Circle {
     constructor(x , y, radius, color) {
@@ -18,7 +19,6 @@ class Circle {
         this.y = y;
         this.radius = radius;
         this.color = color;
-        this.isSelected = false;
     }
 }
 
@@ -132,23 +132,29 @@ async function geneticAlgorithm(){
     output(preMinWay, true);
 }
 function output(way, flag) {
+    // if (!flagFirst) {
+    //     tr.removeChild(td);
+    // }
     let result = [];
     for (let i=0; i<way.way.length; i++){
         result.push(way.way.map(elem => elem.id).join(" "));
     }
-    // let floorFitness = [];
-    // for(let i = 0; i < way.dist.length; i++) {
     let floorFitness = Math.round(way.dist);
-    // }
     let arr =[]
     arr=result.map((x, i) => ({ result: result[i], floorFitness: floorFitness }))
     console.table(result.map((x, i) => ({ result: result[i], floorFitness: floorFitness })))
 
-    let table = document.createElement('table');
-    let tbody = document.createElement('tbody');
-    table.appendChild(tbody);
-    document.getElementById('output').appendChild(table);
-    document.querySelector('.thead').style.display  = 'block';
+     let table = document.createElement('table');
+     let tbody = document.createElement('tbody');
+     table.appendChild(tbody);
+     document.getElementById('output').appendChild(table);
+     document.querySelector('.thead').style.display  = 'block';
+     let tr = document.createElement('tr');
+    // let td = document.createElement('td');
+    // //td.innerHTML = floorFitness;
+    // tr.appendChild(td);
+    // tbody.appendChild(tr);
+    //flagFirst = false;
 }
 
 async function drawLine(way) {
