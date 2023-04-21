@@ -6,21 +6,27 @@
     <link rel="stylesheet" href="css/table.css">
     <link rel="stylesheet" href="css/controlElements.css">
 </head>
-<body bgcolor="#778899">
+<body>
+    <div id = "homeDiv">
+        <button id = "homeBtn">
+            <span>Home</span>
+        </button>
+    </div>
     <div class = "container">
         <h1 id = "aStar">A* (A - star)</h1>
-        <div id="text-area"></div>
-        <input type="number" id="myNumberInput" onkeydown="if(event.keyCode===13) createTable()">
+        <table id = "myTable" class = table></table>
+        <div id="textArea"></div>
         <div id = "buttons">
-                <button id="create-wall-mode-btn">Create Wall Mode</button>
-                <button id="create-maze-btn">Create maze</button>
-                <button id="find-path-btn">Find Path</button>
-                <button id="start-btn"> Set start</button>
-                <button id="end-btn"> Set end</button>
+            <button id="createWallModeBtn">Create Wall Mode</button>
+            <button id="createMazeBtn">Create maze</button>
+            <button id="findPathBtn">Find Path</button>
+            <button id="setStartBtn"> Set start</button>
+            <button id="setEndBtn"> Set end</button>
         </div>
-        <table id = "my-table" class = table></table>
         <script src="Algorithms.js"></script>
+        <input type="number" id="myNumberInput" onkeydown="if(event.keyCode===13) createTable()">
     </div>
 </body>
 </html>
+
 

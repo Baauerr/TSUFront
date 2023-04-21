@@ -1,43 +1,59 @@
-#aStar{
-    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-    padding-bottom: 100px;
+html {
+    background-color: #778899;
+}
+
+#aStar {
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    padding-bottom: 50px;
     order: 1;
 }
-#my-table{
+
+#myTable {
+    z-index: 2;
+    position: relative;
     width: 650px;
     height: 650px;
     order: 2;
     border-collapse: collapse;
-    margin-bottom: 30px;
-}
-td {
-    background-color: black;
+    margin-bottom: 15px;
 }
 
-.container{
+td {
+    background-color: white;
+    border: 1px solid black;
+}
+
+.container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100vh;
+    position: relative;
 }
 
-#text-area {
+#textArea {
     border-radius: 10px;
-    width: 500px;
-    height: 100px;
+    width: 400px;
+    height: 60px;
     border: 1px solid black;
     background-color: white;
     order: 3;
     margin-bottom: 10px;
-    text-align: center;
-    font-size: 30px;
+    text-align-last: center;
+    line-height: 60px;
+    font-size: 25px;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
 .maze {
     background-color: white;
 }
+
 .wall {
     background-color: black;
 }
+
 .startPoint {
     background-color: darkgreen;
 }
@@ -47,9 +63,9 @@ td {
 }
 
 .active {
-     background-color: yellowgreen;
- }
+    background-color: yellowgreen;
+}
 
-.path{
+.path {
     background-color: gold;
 }

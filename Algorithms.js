@@ -1,17 +1,17 @@
-const table = document.getElementById('my-table');
-table.style.borderCollapse = 'collapse';
+const table = document.getElementById('myTable');
 const container = document.querySelector('.container');
 container.appendChild(table);
 
 let maze = [];
 
 let createWallOrPointMode = null;
-let sizeOfMaze
-let start = null
+let sizeOfMaze = 10;
+let start = null;
 let end = null;
-let information = ""
-let startMode = 0
-let endMode = 0
+let information = "";
+let startMode = 0;
+let endMode = 0;
+let crutch = 0;
 
 function createTable() {
     for (let i = table.rows.length - 1; i >= 0; i--) {
@@ -23,13 +23,15 @@ function createTable() {
         endMode = 0
         information = ""
     }
-
-    sizeOfMaze = document.getElementById("myNumberInput").value;
+    if (crutch !== 0) {
+        sizeOfMaze = document.getElementById("myNumberInput").value;
+    }
+    crutch = 1;
     for (let i = 0; i < sizeOfMaze; i++) {
         maze[i] = [];
         for (let j = 0; j < sizeOfMaze; j++) {
             maze[i][j] = {
-                value: 1,
+                value: 0,
                 y: i,
                 x: j,
                 h: 0,
@@ -40,6 +42,7 @@ function createTable() {
             };
         }
     }
+
     for (let y = 0; y < maze.length; y++) {
         const row = document.createElement('tr');
         table.appendChild(row);
@@ -155,6 +158,8 @@ function createTable() {
     }
 }
 
+createTable()
+
 function createMaze(maze, sizeOfMaze, table) {
 
     for (let y = 0; y < sizeOfMaze; y++) {
@@ -204,14 +209,25 @@ function createMaze(maze, sizeOfMaze, table) {
             } else
                 neighboursList.splice(neighboursList.indexOf(randomWall), 1);
 
-            setTimeout(processNextIteration, 0.01);
+            setTimeout(processNextIteration, 0.001);
         }
     }
+
     getNeighbours(2, 2, true, maze, table)
     processNextIteration();
 }
 
 function findPath() {
+
+    for (let y = 0; y < sizeOfMaze; y++) {
+        for (let x = 0; x < sizeOfMaze; x++) {
+            if (maze[y][x].value === 0) {
+                table.rows[y].cells[x].className = '';
+                table.rows[y].cells[x].classList.add('maze');
+            }
+        }
+    }
+
     function manhattanHeuristic(start, end) {
         return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     }
@@ -273,10 +289,11 @@ function findPath() {
             let current = getMin(openList);
 
             if (current.x === end.x && current.y === end.y) {
-                information = "Path found!";
-                document.getElementById("text-area").innerHTML = information;
+                information = ":D";
+                document.getElementById("textArea").innerHTML = information;
                 table.rows[start.y].cells[start.x].classList.replace('active', 'path');
                 table.rows[current.y].cells[current.x].classList.replace('maze', 'path');
+
                 async function visualizePath() {
                     while (current !== start) {
                         table.rows[current.y].cells[current.x].classList.replace('active', 'path');
@@ -284,6 +301,7 @@ function findPath() {
                         await new Promise(resolve => setTimeout(resolve, 30));
                     }
                 }
+
                 visualizePath()
                 return;
             }
@@ -291,20 +309,21 @@ function findPath() {
             getNeighbours(current.y, current.x, maze, table, end, openList, closedList);
             openList.delete(current);
             closedList.push(current);
-            await new Promise(resolve => setTimeout(resolve, 30)); // добавляем задержку в 500 миллисекунд
+            await new Promise(resolve => setTimeout(resolve, 30));
         }
-        information = "No way!";
-        document.getElementById("text-area").innerHTML = information;
+        information = ":(";
+        document.getElementById("textArea").innerHTML = information;
     }
+
     visualizePathFinding()
 }
 
 
-const createWallModeBtn = document.querySelector('#create-wall-mode-btn');
-const setStartBtn = document.querySelector('#start-btn');
-const setEndBtn = document.querySelector('#end-btn');
-const createMazeBtn = document.querySelector('#create-maze-btn');
-const findPathBtn = document.querySelector('#find-path-btn');
+const createWallModeBtn = document.querySelector('#createWallModeBtn');
+const setStartBtn = document.querySelector('#setStartBtn');
+const setEndBtn = document.querySelector('#setEndBtn');
+const createMazeBtn = document.querySelector('#createMazeBtn');
+const findPathBtn = document.querySelector('#findPathBtn');
 
 setEndBtn.addEventListener('click', () => {
     createWallOrPointMode = "end";
