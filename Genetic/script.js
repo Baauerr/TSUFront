@@ -66,6 +66,7 @@ class Way {
 }
 
 function erase() {
+    flagFirst = true;
     clear(context);
     points = [];
     circles = [];
@@ -76,6 +77,10 @@ function erase() {
 }
 
 async function geneticAlgorithm(){
+    if (!flagFirst) {
+        let table = document.querySelector('table')
+        table.remove();
+    }
     let generations = []; //массив где будут храниться все наши поколения
     let countElement = circles.length; //генерация оптимального(нет) кол-ва предков
      //генерация первого поколения 
@@ -130,11 +135,9 @@ async function geneticAlgorithm(){
     document.querySelector('.thead').style.display  = 'none';
     table.parentNode.removeChild(table);
     output(preMinWay, true);
+    flagFirst = false;
 }
 function output(way, flag) {
-    // if (!flagFirst) {
-    //     tr.removeChild(td);
-    // }
     let result = [];
     for (let i=0; i<way.way.length; i++){
         result.push(way.way.map(elem => elem.id).join(" "));
@@ -150,11 +153,11 @@ function output(way, flag) {
      document.getElementById('output').appendChild(table);
      document.querySelector('.thead').style.display  = 'block';
      let tr = document.createElement('tr');
-    // let td = document.createElement('td');
-    // //td.innerHTML = floorFitness;
-    // tr.appendChild(td);
-    // tbody.appendChild(tr);
-    //flagFirst = false;
+     let td = document.createElement('td');
+     td.innerHTML = floorFitness;
+     tr.appendChild(td);
+     tbody.appendChild(tr);
+     //flagFirst = false;
 }
 
 async function drawLine(way) {
