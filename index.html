@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <head>
     <meta charset="UTF-8">
     <title>aStar</title>
@@ -7,21 +8,21 @@
     <link rel="stylesheet" href="css/controlElements.css">
 </head>
 <body>
-    <div id = "homeDiv">
-        <button id = "homeBtn">
-            <span>Home</span>
-        </button>
-    </div>
+        <a href="https://vk.com/im">
+                <button id="homeBtn">
+                    <i class="fa fa-home"></i>
+                </button>
+        </a>
     <div class = "container">
         <h1 id = "aStar">A* (A - star)</h1>
         <table id = "myTable" class = table></table>
         <div id="textArea"></div>
         <div id = "buttons">
-            <button id="createWallModeBtn">Create Wall Mode</button>
-            <button id="createMazeBtn">Create maze</button>
-            <button id="findPathBtn">Find Path</button>
+            <button id="createWallModeBtn">Create wall</button>
             <button id="setStartBtn"> Set start</button>
             <button id="setEndBtn"> Set end</button>
+            <button id="createMazeBtn">Create maze</button>
+            <button id="findPathBtn">Find path</button>
         </div>
         <script src="Algorithms.js"></script>
         <input type="number" id="myNumberInput" onkeydown="if(event.keyCode===13) createTable()">

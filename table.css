@@ -5,23 +5,29 @@ html {
 #aStar {
     font-weight: bold;
     font-family: 'Courier New', Courier, monospace;
-    padding-bottom: 50px;
+    padding-bottom: 1vw;
     order: 1;
 }
 
 #myTable {
-    z-index: 2;
     position: relative;
-    width: 650px;
-    height: 650px;
+    width: 30vw;
+    height: 30vw;
     order: 2;
     border-collapse: collapse;
     margin-bottom: 15px;
+    box-shadow: #b7b7b7;
 }
 
 td {
     background-color: white;
     border: 1px solid black;
+}
+td:hover {
+    transform: scale(0.98);
+}
+td:active {
+    transform: scale(0.95);
 }
 
 .container {

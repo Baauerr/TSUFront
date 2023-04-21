@@ -2,12 +2,18 @@
     display: flex;
     order: 4;
 }
-#homeDiv{
-    width: 90px;
-    height: 20px;
-}
 #homeBtn{
     margin: 20px;
+    width: 60px;
+    height: 60px;
+    color: black;
+    font-size: 30px;
+    position: absolute;
+    z-index: 1;
+}
+.fa-home{
+    position: relative;
+    z-index: 0;
 }
 
 button {
@@ -25,7 +31,8 @@ button {
 }
 
 button:hover {
-    background-color: #f0f0f0;
+    background-color: #b7b7b7;
+    transform: scale(0.97);
 }
 
 button:active {
