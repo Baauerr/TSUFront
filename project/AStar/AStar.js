@@ -234,34 +234,27 @@ function findPath() {
         return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     }
 
+
+    function updateValues(y, x, maze, table, end, openList, parent){
+        maze[y][x].h = manhattanHeuristic(maze[y][x], end) * 10
+        maze[y][x].d = maze[y][x].d + 10
+        maze[y][x].w = maze[y][x].h + maze[y][x].d
+        maze[y][x].parent = parent
+        openList.add(maze[y][x]);
+    }
+
     function getNeighbours(y, x, maze, table, end, openList, closedList) {
         if (valid(y + 1, x) && (maze[y + 1][x].value !== 1) && !closedList.includes(maze[y + 1][x])) {
-            maze[y + 1][x].h = manhattanHeuristic(maze[y + 1][x], end) * 10
-            maze[y + 1][x].d = maze[x][y].d + 10
-            maze[y + 1][x].w = maze[y + 1][x].h + maze[y + 1][x].d
-            maze[y + 1][x].parent = maze[y][x]
-            openList.add(maze[y + 1][x]);
+            updateValues(y + 1, x, maze, table, end, openList, maze[y][x])
         }
         if (valid(y - 1, x) && (maze[y - 1][x].value !== 1) && !closedList.includes(maze[y - 1][x])) {
-            maze[y - 1][x].h = manhattanHeuristic(maze[y - 1][x], end) * 10
-            maze[y - 1][x].d = maze[x][y].d + 10
-            maze[y - 1][x].w = maze[y - 1][x].h + maze[y - 1][x].d
-            maze[y - 1][x].parent = maze[y][x]
-            openList.add(maze[y - 1][x]);
+            updateValues(y - 1, x, maze, table, end, openList, maze[y][x])
         }
         if (valid(y, x + 1) && (maze[y][x + 1].value !== 1) && !closedList.includes(maze[y][x + 1])) {
-            maze[y][x + 1].h = manhattanHeuristic(maze[y][x + 1], end) * 10
-            maze[y][x + 1].d = maze[x][y].d + 10
-            maze[y][x + 1].w = maze[y][x + 1].h + maze[y][x + 1].d
-            maze[y][x + 1].parent = maze[y][x]
-            openList.add(maze[y][x + 1]);
+            updateValues(y, x + 1, maze, table, end, openList, maze[y][x])
         }
         if (valid(y, x - 1) && (maze[y][x - 1].value !== 1) && !closedList.includes(maze[y][x - 1])) {
-            maze[y][x - 1].h = manhattanHeuristic(maze[y][x - 1], end) * 10
-            maze[y][x - 1].d = maze[x][y].d + 10
-            maze[y][x - 1].w = maze[y][x - 1].h + maze[y][x - 1].d
-            maze[y][x - 1].parent = maze[y][x]
-            openList.add(maze[y][x - 1]);
+            updateValues(y, x - 1, maze, table, end, openList, maze[y][x])
         }
     }
 
