@@ -80,11 +80,10 @@ async function geneticAlgorithm(){
         let table = document.querySelector('table')
         table.remove();
     }
-    let generations = []; //массив где будут храниться все наши поколения
-    let countElement = circles.length; //генерация кол-ва предков
-     //генерация первого поколения 
-     let i = 0;
-     while(i < countElement) {
+    let generations = [];
+    let countElement = circles.length;
+    let i = 0;
+    while(i < countElement) {
         let tempWay = firstGeneration();
         let temp = new Way(tempWay, distance(tempWay));
         if(!generations.includes(temp)){
@@ -115,7 +114,7 @@ async function geneticAlgorithm(){
             }
             preMinWay = minWay;
             output(minWay, false);
-            await new Promise((resolve, reject) => setTimeout(resolve, 200));
+            await new Promise((resolve, reject) => setTimeout(resolve, 300));
             clear(context);
             drawLine(outputId[outputId.length - 1]);
             console.log(circles);
@@ -142,6 +141,8 @@ function output(way, flag) {
     }
     let floorFitness = Math.round(way.dist);
     let arr =[]
+    arr=result.map((x, i) => ({ result: result[i], floorFitness: floorFitness }))
+    console.table(result.map((x, i) => ({ result: result[i], floorFitness: floorFitness })))
 
      let table = document.createElement('table');
      let tbody = document.createElement('tbody');
@@ -174,7 +175,6 @@ async function clear(ctx) {
     ctx.clearRect(0, 0, 650, 650);
 }
 
-//генерация первого поколения
 function firstGeneration () {
     let editChromosome = [];
     editChromosome = circles.slice();
@@ -185,22 +185,17 @@ function firstGeneration () {
     return editChromosome;
 }
 
-//скрещивание
-function crossover(generations) {
-    //рандомный выбор родителей
+function crossover(generations) { //скрещивание
     let ancestor1 = generations[getRandomInt(0, generations.length - 1)].way;
     let ancestor2 = generations[getRandomInt(0, generations.length - 1)].way;
     while(ancestor1 == ancestor2) {
         ancestor2 = generations[getRandomInt(0, generations.length - 1)].way;
     }
-    //заполняем геном
     let child1 = fillingGenes(ancestor1, ancestor2); 
     let child2 = fillingGenes(ancestor2, ancestor1);
     while(child1 == child2) {
         child2 = fillingGenes(ancestor2, ancestor1);
     }
-    //вычисляем длины путей
-    //добавляем потомков в наше поколение, добавляем длины путей(фитнесс)
     let temp1 = new Way(child1, distance(child1));
     let temp2 = new Way(child2, distance(child2));
     generations.push(temp1);
@@ -223,57 +218,48 @@ function crossover(generations) {
             }
         }
     }
-    //удаляем их из поколения и фитнессов
     generations.splice(Math.max(indexMax, indexPreMax), 1);
     generations.splice(Math.min(indexPreMax, indexMax), 1);
 }
 
-//заполняем геном
 function fillingGenes(ancestor1, ancestor2) {
     //выбирая точку разрыва заполняем первый сектор генами родителей
     let averageGenes = getRandomInt(1, ancestor1.length - 2);
     let child = ancestor1.slice(0, averageGenes + 1);
     let i = averageGenes;
-    //заполняем гены потомков генами противополжных родителей после точки разрыва
-    while(i < ancestor2.length) {
+    while(i < ancestor2.length) { //заполняем гены потомков генами противополжных родителей после точки разрыва
         if(!child.includes(ancestor2[i])){
             child.push(ancestor2[i]);
         }
         i++;
     }
-    //если хромомсома потомка заполнена не до конца, заполняем генами начального родителя после точки разрыва
     i = averageGenes; 
-    if(child.length != ancestor1.length - 1) {
-        while(i < ancestor1.length) {
-            if(!child.includes(ancestor1[i])){
-            child.push(ancestor1[i]);
+    if(child.length != ancestor1.length - 1) { //заполнить при необходимости до конца
+        while (i < ancestor1.length) {
+            if (!child.includes(ancestor1[i])) {
+                child.push(ancestor1[i]);
             }
             i++;
         }
     }
-    //вставляем конец(из начала)
     child.push(child[0]);
     child = mutation(child);
     return child;
 }
 
-//мутация
 function mutation(child) {
-    //генерируем число для процента мутаций
     let mutationPercentage1 = 40;
     let mutationPercentage2 = 50;
-    let number = getRandomInt(0, 100);
+    let number = getRandomInt(0, 100); //генерируем число для процента мутаций
     
     let index1 = getRandomInt(1, child.length - 2);
     let index2 = getRandomInt(1, child.length - 2);
     while (index1 == index2) {
         index2 = getRandomInt(1, child.length - 2);
     }
-    //выполянем ее сменой двух любых генов
     if(number < mutationPercentage1) {
         child = swap(child, index1, index2);
     }
-    //генерируем начало и конец реверса
     index1 = getRandomInt(1, child.length - 2);
     index2 = getRandomInt(1, child.length - 2);
     while (index1 == index2) {
@@ -284,8 +270,7 @@ function mutation(child) {
         index2 = index1;
         index1 = t;
     }
-    //делаем реверс куска
-    if(number < mutationPercentage2) {
+    if(number < mutationPercentage2) { //делаем реверс
         let j = index2;
         let copy = child.slice();
         for(let i = index1; i < (index1 + index2) / 2; i++) {
