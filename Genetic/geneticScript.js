@@ -84,12 +84,7 @@ async function geneticAlgorithm(){
     let countElement = circles.length;
     let i = 0;
     while(i < countElement) {
-        let tempWay = [];
-         editChromosome = circles.slice();
-         editChromosome.shift();
-         shuffle(editChromosome);
-         editChromosome.push(circles[0]);
-         editChromosome.unshift(circles[0]);
+        let tempWay = firstGeneration();
         let temp = new Way(tempWay, distance(tempWay));
         if(!generations.includes(temp)){
             generations.push(temp);
@@ -119,7 +114,7 @@ async function geneticAlgorithm(){
             }
             preMinWay = minWay;
             output(minWay, false);
-            await new Promise((resolve, reject) => setTimeout(resolve, 200));
+            await new Promise((resolve, reject) => setTimeout(resolve, 300));
             clear(context);
             drawLine(outputId[outputId.length - 1]);
             console.log(circles);
@@ -180,6 +175,16 @@ async function clear(ctx) {
     ctx.clearRect(0, 0, 650, 650);
 }
 
+function firstGeneration () {
+    let editChromosome = [];
+    editChromosome = circles.slice();
+    editChromosome.shift();
+    shuffle(editChromosome);
+    editChromosome.push(circles[0]);
+    editChromosome.unshift(circles[0]);
+    return editChromosome;
+}
+
 function crossover(generations) { //скрещивание
     let ancestor1 = generations[getRandomInt(0, generations.length - 1)].way;
     let ancestor2 = generations[getRandomInt(0, generations.length - 1)].way;
@@ -218,7 +223,8 @@ function crossover(generations) { //скрещивание
 }
 
 function fillingGenes(ancestor1, ancestor2) {
-    let averageGenes = getRandomInt(1, ancestor1.length - 2); //выбираем точку разрыва заполняем первый сектор генами родителей
+    //выбирая точку разрыва заполняем первый сектор генами родителей
+    let averageGenes = getRandomInt(1, ancestor1.length - 2);
     let child = ancestor1.slice(0, averageGenes + 1);
     let i = averageGenes;
     while(i < ancestor2.length) { //заполняем гены потомков генами противополжных родителей после точки разрыва
