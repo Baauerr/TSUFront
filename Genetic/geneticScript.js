@@ -80,11 +80,10 @@ async function geneticAlgorithm(){
         let table = document.querySelector('table')
         table.remove();
     }
-    let generations = []; //массив где будут храниться все наши поколения
-    let countElement = circles.length; //генерация кол-ва предков
-     //генерация первого поколения 
-     let i = 0;
-     while(i < countElement) {
+    let generations = [];
+    let countElement = circles.length;
+    let i = 0;
+    while(i < countElement) {
         let tempWay = [];
          editChromosome = circles.slice();
          editChromosome.shift();
@@ -181,17 +180,6 @@ async function clear(ctx) {
     ctx.clearRect(0, 0, 650, 650);
 }
 
-//генерация первого поколения
-function firstGeneration () {
-    let editChromosome = [];
-    editChromosome = circles.slice();
-    editChromosome.shift();
-    shuffle(editChromosome);
-    editChromosome.push(circles[0]);
-    editChromosome.unshift(circles[0]);
-    return editChromosome;
-}
-
 function crossover(generations) { //скрещивание
     let ancestor1 = generations[getRandomInt(0, generations.length - 1)].way;
     let ancestor2 = generations[getRandomInt(0, generations.length - 1)].way;
@@ -230,20 +218,17 @@ function crossover(generations) { //скрещивание
 }
 
 function fillingGenes(ancestor1, ancestor2) {
-    //выбирая точку разрыва заполняем первый сектор генами родителей
-    let averageGenes = getRandomInt(1, ancestor1.length - 2);
+    let averageGenes = getRandomInt(1, ancestor1.length - 2); //выбираем точку разрыва заполняем первый сектор генами родителей
     let child = ancestor1.slice(0, averageGenes + 1);
     let i = averageGenes;
-    //заполняем гены потомков генами противополжных родителей после точки разрыва
-    while(i < ancestor2.length) {
+    while(i < ancestor2.length) { //заполняем гены потомков генами противополжных родителей после точки разрыва
         if(!child.includes(ancestor2[i])){
             child.push(ancestor2[i]);
         }
         i++;
     }
-    //заполнить при необходимости до конца
     i = averageGenes; 
-    if(child.length != ancestor1.length - 1) {
+    if(child.length != ancestor1.length - 1) { //заполнить при необходимости до конца
         while (i < ancestor1.length) {
             if (!child.includes(ancestor1[i])) {
                 child.push(ancestor1[i]);
@@ -256,12 +241,10 @@ function fillingGenes(ancestor1, ancestor2) {
     return child;
 }
 
-//мутация
 function mutation(child) {
-    //генерируем число для процента мутаций
     let mutationPercentage1 = 40;
     let mutationPercentage2 = 50;
-    let number = getRandomInt(0, 100);
+    let number = getRandomInt(0, 100); //генерируем число для процента мутаций
     
     let index1 = getRandomInt(1, child.length - 2);
     let index2 = getRandomInt(1, child.length - 2);
