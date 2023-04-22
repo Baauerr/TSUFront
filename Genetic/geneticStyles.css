@@ -1,0 +1,88 @@
+body{
+    background-color: rgb(255, 180, 212);
+}
+
+h1 {
+    display: flex;
+    order: 1;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#blockBody{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+}
+
+#canvas {
+    order: 2;
+    display: flex;
+    position: relative;
+    margin: 15px;
+    border-radius: 12px;
+    background-size: 60%;
+    background-color: white;
+}
+
+#output {
+    order : 4;
+}
+
+table {
+    border-radius: 10px;
+    width: 300px;
+    height: 40px;
+    border: 1px solid black;
+    background-color: white;
+    order: 4;
+    text-align-last: center;
+    line-height: 40px;
+    font-weight: bold;
+    font-size: 25px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.btn {
+    order : 3;
+}
+
+button {
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #000000;
+    width: 150px;
+    height: 60px;
+    margin-bottom: 3px;
+    margin-top: 1px;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+button:hover {
+    background-color: #b7b7b7;
+    transform: scale(0.97);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+#homeBtn {
+    margin: 10px;
+    width: 55px;
+    height: 55px;
+    color: black;
+    font-size: 30px;
+    position: absolute;
+    z-index: 1;
+}
+
+.fa-home {
+    position: relative;
+    z-index: 0;
+}
